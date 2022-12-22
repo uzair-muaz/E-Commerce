@@ -1,11 +1,14 @@
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useContext } from 'react'
 import Layout from '../../Components/Layout'
 import data from '../../utils/data';
+import { Store } from '../../utils/Store';
 
 export default function ProductScreen() {
+
+    const { state, dispatch } = useContext(Store);
 
     const { query } = useRouter();
     const { slug } = query;
@@ -13,6 +16,28 @@ export default function ProductScreen() {
     if (!product) {
         return <h1> Product not found !!!  </h1>
     }
+
+    const addToCart = () => {
+        var quantity;
+        const existItem = state.cart.cartItems.find((x) => x.slug === product.slug);
+        if (existItem) {
+            quantity = existItem.quantity + 1;
+        }
+        else {
+            quantity = 1;
+        }
+
+
+        if (product.countInStock < quantity) {
+            alert('Sorry. Product is out of stock');
+            return;
+        }
+
+
+
+        dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
+    }
+
     return (
         <Layout title={product.name} >
             <div className='py-2'>
@@ -54,7 +79,9 @@ export default function ProductScreen() {
                 {/* price */}
                 <div>
                     {/* the upper div cover the whole screen to display the card properly we use another div */}
+                    {/* card container */}
                     <div className='card p-5'>
+
                         <div className='flex mb-2 justify-between'>
                             <div className=''>Price  </div>
                             <div className=''>${product.price}</div>
@@ -64,9 +91,8 @@ export default function ProductScreen() {
                             <div>Status</div>
                             <div>{product.countInStock > 0 ? 'In stock' : 'Unavailable'}</div>
                         </div>
-                        <button
-                            className="primary-button w-full"
-                        // onClick={addToCartHandler}
+                        <button className="primary-button w-full"
+                            onClick={addToCart}
                         >
                             Add to cart
                         </button>
