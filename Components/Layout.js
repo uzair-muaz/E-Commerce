@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AiOutlineShoppingCart } from 'react-icons/ai'
 import { Store } from '../utils/Store';
 
@@ -8,7 +8,11 @@ function Layout({ title, children }) {
 
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
-
+  const [cartItemCount, setCartItemCount] = useState(0);
+  //use Effect only renders on the client side thats why it resolves the hydaration problem (SSR issue)
+  useEffect(() => {
+    setCartItemCount(cart.cartItems.reduce((a, c) => a + c.quantity, 0))
+  }, [cart.cartItems])
   return (
     <>
       <Head>
@@ -27,9 +31,9 @@ function Layout({ title, children }) {
             <div>
               <Link legacyBehavior href="/cart">
                 <a className="p-2">Cart
-                  {cart.cartItems.length > 0 && (
+                  {cartItemCount > 0 && (
                     <span className="ml-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white">
-                      {cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
+                      {cartItemCount}
                     </span>
                   )}
                 </a>
