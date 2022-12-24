@@ -1,4 +1,4 @@
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useContext, useEffect, useState } from 'react';
@@ -6,6 +6,9 @@ import { AiOutlineShoppingCart } from 'react-icons/ai'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Store } from '../utils/Store';
+import { Menu } from '@headlessui/react'
+import DropdownLink from './DropdownLink';
+import Cookies from 'js-cookie';
 
 function Layout({ title, children }) {
   // status is a flag it tells if the session is still loading or not
@@ -17,6 +20,13 @@ function Layout({ title, children }) {
   useEffect(() => {
     setCartItemCount(cart.cartItems.reduce((a, c) => a + c.quantity, 0))
   }, [cart.cartItems])
+
+  const logoutClickHander = () => {
+    Cookies.remove('cart');
+    dispatch({ type: 'CART_RESET' });
+    signOut({ callbackUrl: "/login" });
+  }
+
   return (
     <>
       <Head>
@@ -47,7 +57,20 @@ function Layout({ title, children }) {
               {/* if loading show loading */}
               {status === 'loading' ? ('Loading')
                 // else check if user exists than show user
-                : session?.user ? session.user.name
+                : session?.user ? <Menu as='div' className="relative inline-block">
+                  <Menu.Button className="text-sky-600">{session.user.name}</Menu.Button>
+                  <Menu.Items className="absolute bg-white shadow-lg right-0 w-56 origin-top-right rounded mt-1 border-sky-300 border-2">
+                    <Menu.Item>
+                      <DropdownLink href="/profile" className="dropdown">Profile</DropdownLink>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <DropdownLink href="/order-history" className="dropdown">Order History</DropdownLink>
+                    </Menu.Item>
+                    <Menu.Item >
+                      <a className='dropdown' href='#' onClick={logoutClickHander}>Logout</a>
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
                   //else Show Login
                   : (
                     <Link legacyBehavior href='/login'>
