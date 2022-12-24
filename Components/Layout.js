@@ -1,11 +1,15 @@
+import { useSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useContext, useEffect, useState } from 'react';
 import { AiOutlineShoppingCart } from 'react-icons/ai'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Store } from '../utils/Store';
 
 function Layout({ title, children }) {
-
+  // status is a flag it tells if the session is still loading or not
+  const { status, data: session } = useSession();
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
   const [cartItemCount, setCartItemCount] = useState(0);
@@ -20,6 +24,8 @@ function Layout({ title, children }) {
         <meta name="description" content="Ecommerce Website" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <ToastContainer position='bottom-center' limit={1} />
 
       <div className="flex flex-col min-h-screen justify-between">
         <header>
@@ -38,9 +44,17 @@ function Layout({ title, children }) {
                   )}
                 </a>
               </Link>
-              <Link legacyBehavior href="/login">
-                <a className="p-2">Login</a>
-              </Link>
+              {/* if loading show loading */}
+              {status === 'loading' ? ('Loading')
+                // else check if user exists than show user
+                : session?.user ? session.user.name
+                  //else Show Login
+                  : (
+                    <Link legacyBehavior href='/login'>
+                      <a className='p-2'>Login</a>
+                    </Link>
+                  )}
+
             </div>
           </nav>
         </header>
