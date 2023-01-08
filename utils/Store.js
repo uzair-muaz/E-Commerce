@@ -15,32 +15,6 @@ function reducer(state, action) {
             // Checking if the item already exists in our cart
             const existItem = state.cart.cartItems.find((item) => item.slug == newItem.slug);
 
-            // if item exists replace it with new value else keep the items as they are
-
-            // var cartItems;
-            //     if (existItem) {
-            //         // searching for item
-            //         state.cart.cartItems.map((item) => {
-            //             if (item.name == existItem.name) {
-            //                 // replacing the item
-            //                 cartItems = newItem;
-            //             }
-
-            //             else
-            //                 //keeping the item as they are
-            //                 cartItems = item;
-            //         })
-
-            //     }
-            //     // if item doesnot exist add it to the list
-            //     else {
-            //         // adding item to the previous state
-            //         [...state.cart.cartItems, newItem];
-            //     }
-            //     // returning the new state
-            //     return { ...state, cart: { ...state.cart, newItem } }
-            // }
-
             const cartItems = existItem
                 ? state.cart.cartItems.map((item) =>
                     item.name === existItem.name ? newItem : item
@@ -50,6 +24,9 @@ function reducer(state, action) {
             return { ...state, cart: { ...state.cart, cartItems } };
         }
 
+        case 'CART_CLEAR_ITEM': {
+            return { ...state, cart: { ...state.cart, cartItems: [] } };
+        }
 
         case 'CART_REMOVE_ITEM': {
             const cartItems = state.cart.cartItems.filter((item) => { item.slug !== action.payload.slug });
@@ -88,6 +65,14 @@ function reducer(state, action) {
                 }
             };
 
+        case 'SAVE_PAYMENT_METHOD':
+            return {
+                ...state,
+                cart: {
+                    ...state.cart,
+                    paymentMethod: action.payload,
+                },
+            };
         default:
             return state;
     }
